@@ -19,6 +19,7 @@
 
 <script>
   import {ajaxGetDictItems,getDictItemsFromCache} from '@/api/api'
+  import { getAction } from '../../api/manage'
 
   export default {
     name: "JDictSelectTag",
