@@ -64,9 +64,9 @@ export const JeecgListMixin = {
     //token header
     tokenHeader(){
       let head = {'X-Access-Token': Vue.ls.get(ACCESS_TOKEN)}
-      let tenantid = Vue.ls.get(TENANT_ID)
-      if(tenantid){
-        head['tenant-id'] = tenantid
+      let tenantId = Vue.ls.get(TENANT_ID)
+      if(tenantId){
+        head['tenantId'] = tenantId
       }
       return head;
     }
