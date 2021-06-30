@@ -136,11 +136,17 @@
         this.fileList = fileList
       },
       beforeUpload: function(file){
-        var fileType = file.type;
-        if(fileType.indexOf('image')<0){
-          this.$message.warning('请上传图片');
-          return false;
+        const imageUploadSizeLimit = 200;
+        const isAllowImageType = file.type.indexOf('image') >= 0
+        if (!isAllowImageType) {
+          this.$message.error('上传失败，必须上传 png 或 jpeg，请删除后重新上传合规图片！')
         }
+        // 限制上传图片的大小
+        const isSmallThanImageUploadSizeLimit = file.size / 1024 < imageUploadSizeLimit
+        if (!isSmallThanImageUploadSizeLimit) {
+          this.$message.error('上传失败，图片必须小于 200kb，请删除后重新上传合规图片！')
+        }
+        return isAllowImageType && isSmallThanImageUploadSizeLimit;
       },
       handleChange(info) {
         this.picUrl = false;
