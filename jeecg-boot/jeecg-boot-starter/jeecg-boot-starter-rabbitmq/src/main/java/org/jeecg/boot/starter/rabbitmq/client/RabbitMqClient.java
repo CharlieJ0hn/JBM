@@ -15,6 +15,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.BusProperties;
 import org.springframework.context.ApplicationContext;
@@ -61,7 +62,7 @@ public class RabbitMqClient {
         Map<String, Object> beansWithRqbbitComponentMap = this.applicationContext.getBeansWithAnnotation(RabbitComponent.class);
         Class<? extends Object> clazz = null;
         for (Map.Entry<String, Object> entry : beansWithRqbbitComponentMap.entrySet()) {
-            log.info("初始化队列............");
+            log.info("初始化时队列............");
             //获取到实例对象的class信息
             clazz = entry.getValue().getClass();
             Method[] methods = clazz.getMethods();
@@ -86,7 +87,7 @@ public class RabbitMqClient {
      */
     private void createQueue(RabbitListener rabbitListener) {
         String[] queues = rabbitListener.queues();
-        DirectExchange directExchange = createExchange(DelayExchangeBuilder.DELAY_EXCHANGE);
+        DirectExchange directExchange = createExchange(DelayExchangeBuilder.DEFAULT_EXCHANGE);
         //创建交换机
         rabbitAdmin.declareExchange(directExchange);
         if (ObjectUtil.isNotEmpty(queues)) {
@@ -165,13 +166,14 @@ public class RabbitMqClient {
     /**
      * 发送消息
      *
-     * @param queueName 队列名称
+     * @param routingKey 路由密钥
      * @param params    消息内容map
      */
-    public void sendMessage(String queueName, Object params) {
-        log.info("发送消息到mq");
+    public void sendMessage(String routingKey, Object params) {
+        log.info("发送消息到mq routingKey {} params {}", routingKey, params);
         try {
-            rabbitTemplate.convertAndSend(DelayExchangeBuilder.DELAY_EXCHANGE, queueName, params, message -> {
+            rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+            rabbitTemplate.convertAndSend(DelayExchangeBuilder.DEFAULT_EXCHANGE, routingKey, params, message -> {
                 return message;
             });
         } catch (Exception e) {
@@ -225,7 +227,7 @@ public class RabbitMqClient {
                 }
             }
         });*/
-        rabbitTemplate.convertAndSend(DelayExchangeBuilder.DEFAULT_DELAY_EXCHANGE, queueName, params, message -> {
+        rabbitTemplate.convertAndSend(DelayExchangeBuilder.DELAY_EXCHANGE, queueName, params, message -> {
             if (expiration != null && expiration > 0) {
                 message.getMessageProperties().setHeader("x-delay", expiration);
             }
