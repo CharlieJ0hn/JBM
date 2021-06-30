@@ -67,6 +67,14 @@
     },
     methods: {
       initDictData() {
+        // 通过接口控制权限的字典,例如 /jeecg/shop/dict 后端通过获取当前用户，然后根据权限返回对应的字典，就可以通过接口控制字典了。
+        if (!!this.dictCode.match(/dict/g)) {
+          getAction(this.dictCode).then(res => {
+            this.dictOptions = res.result
+          })
+          return
+        }
+
         //优先从缓存中读取字典配置
         if(getDictItemsFromCache(this.dictCode)){
           this.dictOptions = getDictItemsFromCache(this.dictCode);
