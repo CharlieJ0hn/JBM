@@ -296,7 +296,7 @@ public interface CommonConstant {
     /**
      * 多租户 请求头
      */
-    public final static String TENANT_ID = "tenant-id";
+    public final static String TENANT_ID = "tenantId";
 
     /**
      * 微服务读取配置文件属性 服务地址
